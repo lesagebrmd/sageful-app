@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>// Sageful OS</title>
-  <meta name="description" content="Sageful OS // the system that assembles your calendar, tasks, and priorities with AI before you even sit down.">
+  <title>Sageful — Sageful OS</title>
+  <meta name="description" content="Sageful OS — the system that assembles your calendar, tasks, and priorities with AI before you even sit down.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 
   <style>
-    /* ââ Tokens ââ */
+    /* ── Tokens ── */
     :root {
       --bg:          #F5F8F5;
       --bg-warm:     #EFF4EF;
@@ -61,7 +61,7 @@
       opacity: 0.35;
     }
 
-    /* ââ NAV ââ */
+    /* ── NAV ── */
     nav {
       position: fixed;
       top: 0; left: 0; right: 0;
@@ -127,7 +127,7 @@
       transform: translateY(-1px);
     }
 
-    /* ââ HERO ââ */
+    /* ── HERO ── */
     .hero {
       min-height: 100vh;
       padding: 140px 40px 80px;
@@ -274,14 +274,14 @@
       padding-left: 20px;
     }
 
-    /* ââ DASHBOARD PREVIEW ââ */
+    /* ── DASHBOARD PREVIEW ── */
     .hero-visual {
       opacity: 0;
       transform: translateY(20px) scale(0.98);
       animation: fadeUp 0.9s var(--ease) 0.5s forwards;
     }
 
-    /* ââ Dashboard Mockup ââ */
+    /* ── Dashboard Mockup ── */
     .dash-frame {
       background: var(--bg-warm);
       border: 1px solid var(--border-soft);
@@ -453,14 +453,14 @@
     .dash-task.done { color: var(--ink-light); text-decoration: line-through; }
     .dash-brief { font-size: 11.5px; line-height: 1.6; color: var(--ink-soft); font-weight: 300; }
 
-    /* ââ SECTION DIVIDER ââ */
+    /* ── SECTION DIVIDER ── */
     .section-divider {
       height: 1px;
       background: linear-gradient(90deg, transparent, var(--sage-pale), transparent);
       margin: 0 40px;
     }
 
-    /* ââ PROOF STRIP ââ */
+    /* ── PROOF STRIP ── */
     .proof-strip {
       background: var(--bg-warm);
       padding: 24px 40px;
@@ -492,7 +492,7 @@
       flex-shrink: 0;
     }
 
-    /* ââ COMPARISON ââ */
+    /* ── COMPARISON ── */
     .comparison {
       padding: 100px 40px;
       background: var(--bg);
@@ -605,7 +605,7 @@
 
     .compare-card.sageful .compare-row-value { color: var(--ink); font-weight: 400; }
 
-    /* ââ HOW IT WORKS ââ */
+    /* ── HOW IT WORKS ── */
     .how {
       padding: 100px 40px;
       background: var(--bg-warm);
@@ -677,7 +677,7 @@
       opacity: 0.35;
     }
 
-    /* ââ BOTTOM CTA ââ */
+    /* ── BOTTOM CTA ── */
     .cta-section {
       padding: 100px 40px;
       background: var(--sage-deep);
@@ -785,7 +785,7 @@
       opacity: 0.92;
     }
 
-    /* ââ FOOTER ââ */
+    /* ── FOOTER ── */
     footer {
       background: var(--bg-warm);
       border-top: 1px solid var(--border-soft);
@@ -821,7 +821,7 @@
       color: var(--ink-light);
     }
 
-    /* ââ SCROLL ANIMATIONS ââ */
+    /* ── SCROLL ANIMATIONS ── */
     .reveal {
       opacity: 0;
       transform: translateY(24px);
@@ -833,12 +833,12 @@
       transform: translateY(0);
     }
 
-    /* ââ KEYFRAMES ââ */
+    /* ── KEYFRAMES ── */
     @keyframes fadeUp {
       to { opacity: 1; transform: translateY(0) scale(1); }
     }
 
-    /* ââ MOBILE ââ */
+    /* ── MOBILE ── */
     @media (max-width: 768px) {
       nav { padding: 0 20px; }
 
@@ -892,7 +892,7 @@
   <section class="hero">
     <div class="hero-inner">
       <div class="hero-left">
-        <p class="hero-eyebrow">// sageful os - early access</p>
+        <p class="hero-eyebrow">// sageful os · early access</p>
         <h1>
           Your life,<br>
           <em>intelligently</em><br>
@@ -902,7 +902,10 @@
           Sageful OS assembles your calendar, tasks, and priorities with AI before you even sit down. No setup. No blank pages. Just your day, ready.
         </p>
         <div class="waitlist-wrap">
-          <iframe data-tally-src="https://tally.so/embed/MeYODA?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1" loading="lazy" width="100%" height="150" frameborder="0" marginheight="0" marginwidth="0" title="Sageful Waitlist"></iframe>
+          <form class="waitlist-form" onsubmit="handleWaitlist(event, this)">
+            <input type="email" placeholder="Your email" required>
+            <button type="submit">Get early access</button>
+          </form>
           <p class="waitlist-note">No spam. Early access notification only.</p>
         </div>
       </div>
@@ -917,7 +920,7 @@
               <span class="dash-brand-name">BrianAI-OS</span>
             </div>
             <div class="dash-header-right">
-              <span class="dash-clock">Wed 2 Apr &nbsp;Â·&nbsp; 8:47 am</span>
+              <span class="dash-clock">Wed 2 Apr &nbsp;·&nbsp; 8:47 am</span>
               <span class="dash-live"><span class="dash-live-dot"></span>live</span>
             </div>
           </div>
@@ -1103,7 +1106,10 @@
     <div class="cta-inner">
       <h2>Live with intention.<br><em>Not with tabs.</em></h2>
       <p>Join the waitlist for early access to Sageful.</p>
-      <iframe data-tally-src="https://tally.so/embed/MeYODA?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1" loading="lazy" width="100%" height="150" frameborder="0" marginheight="0" marginwidth="0" title="Sageful Waitlist"></iframe>
+      <form class="cta-form" onsubmit="handleWaitlist(event, this)">
+        <input type="email" placeholder="Your email" required>
+        <button type="submit">Get early access</button>
+      </form>
     </div>
   </section>
 
@@ -1112,7 +1118,7 @@
     <div class="footer-inner">
       <span class="footer-wordmark">sageful</span>
       <span class="footer-tagline">intelligently assembled</span>
-      <span class="footer-right">Â© 2026 &middot; Early Access</span>
+      <span class="footer-right">© 2026 &middot; Early Access</span>
     </div>
   </footer>
 
@@ -1139,8 +1145,18 @@
 
     document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
 
-    // Tally embed loader
-    var d=document,w="https://tally.so/widgets/embed.js",v=function(){"undefined"!=typeof Tally?Tally.loadEmbeds():d.querySelectorAll("iframe[data-tally-src]:not([src])").forEach((function(e){e.src=e.dataset.tallySrc}))};if("undefined"!=typeof Tally)v();else if(d.querySelector('script[src="'+w+'"]')==null){var s=d.createElement("script");s.src=w;s.onload=v;s.onerror=v;d.body.appendChild(s);}
+    // Waitlist form handler
+    function handleWaitlist(e, form) {
+      e.preventDefault();
+      const btn = form.querySelector('button');
+      const email = form.querySelector('input').value;
+      btn.textContent = 'You\u2019re in!';
+      btn.style.background = 'var(--sage-deep)';
+      form.querySelector('input').disabled = true;
+      btn.disabled = true;
+      // TODO: wire to backend / webhook
+      console.log('Waitlist signup:', email);
+    }
   </script>
 
 </body>
