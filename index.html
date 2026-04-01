@@ -1,0 +1,1147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sageful â Sageful OS</title>
+  <meta name="description" content="Sageful OS â the system that assembles your calendar, tasks, and priorities with AI before you even sit down.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <style>
+    /* ââ Tokens ââ */
+    :root {
+      --bg:          #F5F8F5;
+      --bg-warm:     #EFF4EF;
+      --bg-card:     #E8F0E9;
+      --sage-deep:   #2E5D42;
+      --sage-mid:    #4A7D5E;
+      --sage-bright: #5A9470;
+      --sage-light:  #8BB89A;
+      --sage-pale:   #C4D9CB;
+      --sage-mist:   #DCE9DF;
+      --sage-whisper:#EDF4EE;
+      --ink:         #182820;
+      --ink-mid:     #3A5244;
+      --ink-soft:    #637A6C;
+      --ink-light:   #8FA898;
+      --white:       #FDFFFE;
+      --border:      #C8DBCE;
+      --border-soft: #DDE8DF;
+
+      --f-display: 'Cormorant Garamond', Georgia, serif;
+      --f-body:    'DM Sans', system-ui, sans-serif;
+      --f-mono:    'IBM Plex Mono', monospace;
+
+      --max-w: 1100px;
+      --ease:  cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--f-body);
+      background: var(--bg);
+      color: var(--ink);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    /* Grain overlay for depth */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.35;
+    }
+
+    /* ââ NAV ââ */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 0 40px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(245, 248, 245, 0.82);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.3s ease, background 0.3s ease;
+    }
+
+    nav.scrolled {
+      border-bottom-color: var(--border-soft);
+      background: rgba(245, 248, 245, 0.94);
+    }
+
+    .nav-wordmark {
+      font-family: var(--f-display);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--sage-deep);
+      letter-spacing: 0.03em;
+      text-decoration: none;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .nav-link {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--ink-soft);
+      text-decoration: none;
+      transition: color 0.2s ease;
+    }
+
+    .nav-link:hover { color: var(--sage-mid); }
+
+    .nav-btn {
+      font-family: var(--f-body);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--white);
+      background: var(--sage-mid);
+      border: none;
+      padding: 10px 22px;
+      border-radius: 100px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s ease, transform 0.15s ease;
+    }
+
+    .nav-btn:hover {
+      background: var(--sage-deep);
+      transform: translateY(-1px);
+    }
+
+    /* ââ HERO ââ */
+    .hero {
+      min-height: 100vh;
+      padding: 140px 40px 80px;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Soft radial glow behind hero */
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: -10%;
+      right: -5%;
+      width: 70vw;
+      height: 80vh;
+      background: radial-gradient(ellipse at center,
+        rgba(90, 148, 112, 0.13) 0%,
+        rgba(196, 217, 203, 0.08) 45%,
+        transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1.05fr;
+      gap: 64px;
+      align-items: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-left { max-width: 560px; }
+
+    .hero-eyebrow {
+      font-family: var(--f-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--sage-bright);
+      margin-bottom: 28px;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: fadeUp 0.7s var(--ease) 0.1s forwards;
+    }
+
+    .hero h1 {
+      font-family: var(--f-display);
+      font-size: clamp(44px, 5.5vw, 68px);
+      font-weight: 300;
+      line-height: 1.08;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+      margin-bottom: 28px;
+      opacity: 0;
+      transform: translateY(16px);
+      animation: fadeUp 0.8s var(--ease) 0.2s forwards;
+    }
+
+    .hero h1 em {
+      font-style: italic;
+      font-weight: 300;
+      color: var(--sage-mid);
+    }
+
+    .hero h1 .accent-word {
+      color: var(--sage-deep);
+      font-weight: 400;
+    }
+
+    .hero-sub {
+      font-size: 17px;
+      font-weight: 300;
+      line-height: 1.7;
+      color: var(--ink-soft);
+      margin-bottom: 44px;
+      max-width: 440px;
+      opacity: 0;
+      transform: translateY(12px);
+      animation: fadeUp 0.7s var(--ease) 0.35s forwards;
+    }
+
+    .waitlist-wrap {
+      opacity: 0;
+      transform: translateY(12px);
+      animation: fadeUp 0.7s var(--ease) 0.45s forwards;
+    }
+
+    .waitlist-form {
+      display: flex;
+      gap: 10px;
+      max-width: 420px;
+      margin-bottom: 14px;
+    }
+
+    .waitlist-form input {
+      flex: 1;
+      font-family: var(--f-body);
+      font-size: 15px;
+      font-weight: 300;
+      padding: 14px 20px;
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: 100px;
+      outline: none;
+      color: var(--ink);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .waitlist-form input::placeholder { color: var(--ink-light); }
+
+    .waitlist-form input:focus {
+      border-color: var(--sage-mid);
+      box-shadow: 0 0 0 4px rgba(90, 148, 112, 0.12);
+    }
+
+    .waitlist-form button {
+      font-family: var(--f-body);
+      font-size: 15px;
+      font-weight: 500;
+      padding: 14px 28px;
+      background: var(--sage-mid);
+      color: var(--white);
+      border: none;
+      border-radius: 100px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s ease, transform 0.15s ease;
+    }
+
+    .waitlist-form button:hover {
+      background: var(--sage-deep);
+      transform: translateY(-1px);
+    }
+
+    .waitlist-note {
+      font-size: 13px;
+      color: var(--ink-light);
+      padding-left: 20px;
+    }
+
+    /* ââ DASHBOARD PREVIEW ââ */
+    .hero-visual {
+      opacity: 0;
+      transform: translateY(20px) scale(0.98);
+      animation: fadeUp 0.9s var(--ease) 0.5s forwards;
+    }
+
+    /* ââ Dashboard Mockup ââ */
+    .dash-frame {
+      background: var(--bg-warm);
+      border: 1px solid var(--border-soft);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow:
+        0 2px 4px rgba(30, 60, 40, 0.04),
+        0 8px 24px rgba(30, 60, 40, 0.08),
+        0 32px 64px rgba(30, 60, 40, 0.06);
+    }
+
+    /* Real dashboard header strip */
+    .dash-topbar {
+      background: rgba(255,255,255,0.94);
+      border-bottom: 1px solid var(--border-soft);
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .dash-brand {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .dash-brand-mark {
+      width: 7px; height: 7px;
+      border-radius: 2px;
+      background: var(--sage-mid);
+    }
+
+    .dash-brand-name {
+      font-family: var(--f-mono);
+      font-size: 10px;
+      color: var(--ink);
+      letter-spacing: 0.05em;
+    }
+
+    .dash-header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .dash-clock {
+      font-family: var(--f-mono);
+      font-size: 9px;
+      color: var(--ink-light);
+      letter-spacing: 0.05em;
+    }
+
+    .dash-live {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-family: var(--f-mono);
+      font-size: 8px;
+      color: var(--sage-mid);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .dash-live-dot {
+      width: 5px; height: 5px;
+      border-radius: 50%;
+      background: var(--sage-mid);
+      animation: livePulse 2.4s ease-in-out infinite;
+    }
+
+    @keyframes livePulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(74,125,94,0.7); }
+      50%       { box-shadow: 0 0 0 5px rgba(74,125,94,0); }
+    }
+
+    .dash-body {
+      padding: 16px;
+      background: var(--bg-warm);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Metrics row */
+    .dash-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .dash-metric {
+      background: var(--white);
+      border: 1px solid var(--border-soft);
+      border-radius: 8px;
+      padding: 10px 12px 8px;
+    }
+
+    .dash-metric-num {
+      font-family: var(--f-display);
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+      line-height: 1;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .dash-metric-label {
+      font-family: var(--f-mono);
+      font-size: 8px;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--ink-light);
+    }
+
+    /* Main tile grid */
+    .dash-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .dash-tile {
+      background: var(--white);
+      border: 1px solid var(--border-soft);
+      border-top: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 14px 12px;
+      transition: box-shadow 0.2s ease;
+    }
+
+    .dash-tile:hover {
+      box-shadow: 0 2px 12px rgba(30, 60, 40, 0.08);
+    }
+
+    .dash-tile.accent-sage   { border-top-color: var(--sage-mid); }
+    .dash-tile.accent-amber  { border-top-color: #8B6914; }
+    .dash-tile.accent-emerald{ border-top-color: var(--sage-bright); }
+    .dash-tile.wide { grid-column: 1 / -1; background: var(--sage-whisper); border-color: var(--sage-mist); border-top-color: var(--sage-light); }
+
+    .dash-tile-label {
+      font-family: var(--f-mono);
+      font-size: 8px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-light);
+      margin-bottom: 8px;
+    }
+
+    .dash-tile-content { font-size: 12px; line-height: 1.6; color: var(--ink-soft); }
+
+    .dash-tile-row {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      padding: 4px 0;
+      border-bottom: 1px solid var(--sage-whisper);
+    }
+    .dash-tile-row:last-child { border-bottom: none; }
+
+    .dash-check { color: var(--sage-mid); font-size: 11px; flex-shrink: 0; }
+    .dash-check-empty { color: var(--border); font-size: 10px; flex-shrink: 0; }
+    .dash-time { font-family: var(--f-mono); font-size: 9px; color: var(--sage-mid); flex-shrink: 0; min-width: 34px; }
+    .dash-task { font-size: 11px; color: var(--ink-mid); }
+    .dash-task.done { color: var(--ink-light); text-decoration: line-through; }
+    .dash-brief { font-size: 11.5px; line-height: 1.6; color: var(--ink-soft); font-weight: 300; }
+
+    /* ââ SECTION DIVIDER ââ */
+    .section-divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--sage-pale), transparent);
+      margin: 0 40px;
+    }
+
+    /* ââ PROOF STRIP ââ */
+    .proof-strip {
+      background: var(--bg-warm);
+      padding: 24px 40px;
+      text-align: center;
+    }
+
+    .proof-strip-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .proof-item {
+      font-size: 13px;
+      color: var(--ink-light);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .proof-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--sage-pale);
+      flex-shrink: 0;
+    }
+
+    /* ââ COMPARISON ââ */
+    .comparison {
+      padding: 100px 40px;
+      background: var(--bg);
+      position: relative;
+    }
+
+    .comparison::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 20% 60%,
+        rgba(90, 148, 112, 0.07) 0%,
+        transparent 60%);
+      pointer-events: none;
+    }
+
+    .comparison-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .section-eyebrow {
+      font-family: var(--f-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--sage-bright);
+      margin-bottom: 20px;
+    }
+
+    .comparison h2 {
+      font-family: var(--f-display);
+      font-size: clamp(32px, 4vw, 52px);
+      font-weight: 300;
+      line-height: 1.12;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+    }
+
+    .comparison h2 em {
+      font-style: italic;
+      color: var(--sage-mid);
+    }
+
+    .comparison-sub {
+      font-size: 17px;
+      font-weight: 300;
+      line-height: 1.65;
+      color: var(--ink-soft);
+      max-width: 540px;
+      margin-bottom: 64px;
+    }
+
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .compare-card {
+      background: var(--white);
+      border: 1px solid var(--border-soft);
+      border-radius: 16px;
+      padding: 40px;
+    }
+
+    .compare-card.sageful {
+      background: var(--sage-whisper);
+      border-color: var(--sage-pale);
+    }
+
+    .compare-card-label {
+      font-family: var(--f-mono);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 32px;
+    }
+
+    .compare-card:not(.sageful) .compare-card-label { color: var(--ink-light); }
+    .compare-card.sageful .compare-card-label { color: var(--sage-mid); }
+
+    .compare-row {
+      padding: 14px 0;
+      border-bottom: 1px solid var(--sage-mist);
+    }
+
+    .compare-row:last-child { border-bottom: none; }
+
+    .compare-row-label {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ink-light);
+      margin-bottom: 5px;
+    }
+
+    .compare-row-value {
+      font-size: 15px;
+      font-weight: 300;
+      line-height: 1.5;
+      color: var(--ink-mid);
+    }
+
+    .compare-card.sageful .compare-row-value { color: var(--ink); font-weight: 400; }
+
+    /* ââ HOW IT WORKS ââ */
+    .how {
+      padding: 100px 40px;
+      background: var(--bg-warm);
+    }
+
+    .how-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+    }
+
+    .how h2 {
+      font-family: var(--f-display);
+      font-size: clamp(30px, 3.5vw, 46px);
+      font-weight: 300;
+      line-height: 1.15;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+      margin-bottom: 60px;
+    }
+
+    .how h2 em { font-style: italic; color: var(--sage-mid); }
+
+    .how-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 2px;
+      background: var(--border-soft);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .how-step {
+      background: var(--white);
+      padding: 40px 36px;
+      position: relative;
+      transition: background 0.25s ease;
+    }
+
+    .how-step:hover { background: var(--sage-whisper); }
+
+    .how-step-num {
+      font-family: var(--f-mono);
+      font-size: 11px;
+      color: var(--sage-pale);
+      letter-spacing: 0.06em;
+      margin-bottom: 20px;
+    }
+
+    .how-step-title {
+      font-family: var(--f-display);
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--ink);
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    .how-step-body {
+      font-size: 14px;
+      font-weight: 300;
+      line-height: 1.7;
+      color: var(--ink-soft);
+    }
+
+    .how-step-icon {
+      position: absolute;
+      top: 36px; right: 36px;
+      font-size: 20px;
+      opacity: 0.35;
+    }
+
+    /* ââ BOTTOM CTA ââ */
+    .cta-section {
+      padding: 100px 40px;
+      background: var(--sage-deep);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      top: -40%;
+      right: -10%;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .cta-section::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -5%;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(255,255,255,0.04) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .cta-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cta-section h2 {
+      font-family: var(--f-display);
+      font-size: clamp(36px, 5vw, 60px);
+      font-weight: 300;
+      line-height: 1.1;
+      color: var(--white);
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+    }
+
+    .cta-section h2 em {
+      font-style: italic;
+      color: var(--sage-pale);
+    }
+
+    .cta-section p {
+      font-size: 17px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.7);
+      margin-bottom: 44px;
+    }
+
+    .cta-form {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+
+    .cta-form input {
+      flex: 1;
+      font-family: var(--f-body);
+      font-size: 15px;
+      font-weight: 300;
+      padding: 14px 22px;
+      background: rgba(255,255,255,0.12);
+      border: 1.5px solid rgba(255,255,255,0.25);
+      border-radius: 100px;
+      outline: none;
+      color: var(--white);
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .cta-form input::placeholder { color: rgba(255,255,255,0.4); }
+
+    .cta-form input:focus {
+      border-color: rgba(255,255,255,0.6);
+      background: rgba(255,255,255,0.18);
+    }
+
+    .cta-form button {
+      font-family: var(--f-body);
+      font-size: 15px;
+      font-weight: 500;
+      padding: 14px 28px;
+      background: var(--white);
+      color: var(--sage-deep);
+      border: none;
+      border-radius: 100px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: transform 0.15s ease, opacity 0.2s ease;
+    }
+
+    .cta-form button:hover {
+      transform: translateY(-1px);
+      opacity: 0.92;
+    }
+
+    /* ââ FOOTER ââ */
+    footer {
+      background: var(--bg-warm);
+      border-top: 1px solid var(--border-soft);
+      padding: 32px 40px;
+    }
+
+    .footer-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-wordmark {
+      font-family: var(--f-display);
+      font-size: 18px;
+      font-weight: 400;
+      color: var(--sage-deep);
+      letter-spacing: 0.03em;
+    }
+
+    .footer-tagline {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--ink-light);
+      font-style: italic;
+      font-family: var(--f-display);
+    }
+
+    .footer-right {
+      font-size: 12px;
+      color: var(--ink-light);
+    }
+
+    /* ââ SCROLL ANIMATIONS ââ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ââ KEYFRAMES ââ */
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ââ MOBILE ââ */
+    @media (max-width: 768px) {
+      nav { padding: 0 20px; }
+
+      .nav-right .nav-link { display: none; }
+
+      .hero {
+        padding: 110px 20px 60px;
+        min-height: auto;
+      }
+
+      .hero-inner {
+        grid-template-columns: 1fr;
+        gap: 48px;
+      }
+
+      .hero-visual { display: none; }
+
+      .waitlist-form { flex-direction: column; }
+      .waitlist-form button { border-radius: 100px; }
+
+      .compare-grid,
+      .how-steps { grid-template-columns: 1fr; }
+
+      .comparison, .how, .cta-section { padding: 72px 20px; }
+
+      .section-divider { margin: 0 20px; }
+      .proof-strip { padding: 20px; }
+      .proof-strip-inner { gap: 20px; }
+
+      .cta-form { flex-direction: column; }
+
+      .footer-inner { flex-direction: column; gap: 12px; text-align: center; }
+
+      .footer-tagline { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav id="nav">
+    <a href="#" class="nav-wordmark">sageful</a>
+    <div class="nav-right">
+      <a href="#how" class="nav-link">How it works</a>
+      <a href="#compare" class="nav-link">vs. Notion</a>
+      <a href="#waitlist-bottom" class="nav-btn">Join waitlist</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-left">
+        <p class="hero-eyebrow">// sageful os Â· early access</p>
+        <h1>
+          Your life,<br>
+          <em>intelligently</em><br>
+          <span class="accent-word">assembled.</span>
+        </h1>
+        <p class="hero-sub">
+          Sageful OS assembles your calendar, tasks, and priorities with AI before you even sit down. No setup. No blank pages. Just your day, ready.
+        </p>
+        <div class="waitlist-wrap">
+          <iframe data-tally-src="https://tally.so/embed/MeYODA?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1" loading="lazy" width="100%" height="150" frameborder="0" marginheight="0" marginwidth="0" title="Sageful Waitlist"></iframe>
+          <p class="waitlist-note">No spam. Early access notification only.</p>
+        </div>
+      </div>
+
+      <!-- Dashboard Preview -->
+      <div class="hero-visual">
+        <div class="dash-frame">
+          <!-- Real header strip -->
+          <div class="dash-topbar">
+            <div class="dash-brand">
+              <span class="dash-brand-mark"></span>
+              <span class="dash-brand-name">BrianAI-OS</span>
+            </div>
+            <div class="dash-header-right">
+              <span class="dash-clock">Wed 2 Apr &nbsp;Â·&nbsp; 8:47 am</span>
+              <span class="dash-live"><span class="dash-live-dot"></span>live</span>
+            </div>
+          </div>
+
+          <div class="dash-body">
+            <!-- Metrics row -->
+            <div class="dash-metrics">
+              <div class="dash-metric">
+                <span class="dash-metric-num">4</span>
+                <span class="dash-metric-label">Tasks today</span>
+              </div>
+              <div class="dash-metric">
+                <span class="dash-metric-num">3</span>
+                <span class="dash-metric-label">Meetings</span>
+              </div>
+              <div class="dash-metric">
+                <span class="dash-metric-num">2h</span>
+                <span class="dash-metric-label">Focus block</span>
+              </div>
+            </div>
+
+            <!-- Wide AI briefing -->
+            <div class="dash-tile wide">
+              <div class="dash-tile-label">morning briefing</div>
+              <p class="dash-brief">3 meetings today starting at 10am. A 2-hour focus block opens at 1pm. Your top priority from yesterday carries forward &mdash; it&rsquo;s the first thing to touch.</p>
+            </div>
+
+            <!-- Tiles row -->
+            <div class="dash-grid">
+              <div class="dash-tile accent-sage">
+                <div class="dash-tile-label">today&rsquo;s tasks</div>
+                <div class="dash-tile-content">
+                  <div class="dash-tile-row">
+                    <span class="dash-check">&#10003;</span>
+                    <span class="dash-task done">Q2 projections</span>
+                  </div>
+                  <div class="dash-tile-row">
+                    <span class="dash-check">&#10003;</span>
+                    <span class="dash-task done">Send project update</span>
+                  </div>
+                  <div class="dash-tile-row">
+                    <span class="dash-check-empty">&#9675;</span>
+                    <span class="dash-task">Finalize deck</span>
+                  </div>
+                  <div class="dash-tile-row">
+                    <span class="dash-check-empty">&#9675;</span>
+                    <span class="dash-task">Design team call</span>
+                  </div>
+                </div>
+              </div>
+              <div class="dash-tile accent-emerald">
+                <div class="dash-tile-label">calendar</div>
+                <div class="dash-tile-content">
+                  <div class="dash-tile-row">
+                    <span class="dash-time">10:00</span>
+                    <span class="dash-task">Team standup</span>
+                  </div>
+                  <div class="dash-tile-row">
+                    <span class="dash-time">11:30</span>
+                    <span class="dash-task">Client check-in</span>
+                  </div>
+                  <div class="dash-tile-row">
+                    <span class="dash-time">13:00</span>
+                    <span class="dash-task">&#x25b6; Focus block</span>
+                  </div>
+                  <div class="dash-tile-row">
+                    <span class="dash-time">15:30</span>
+                    <span class="dash-task">Design review</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROOF STRIP -->
+  <div class="proof-strip">
+    <div class="proof-strip-inner">
+      <span class="proof-item"><span class="proof-dot"></span>No setup required</span>
+      <span class="proof-item"><span class="proof-dot"></span>AI assembles your day every morning</span>
+      <span class="proof-item"><span class="proof-dot"></span>Calendar + tasks + priorities in one view</span>
+      <span class="proof-item"><span class="proof-dot"></span>Built for Notion quitters</span>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- HOW IT WORKS -->
+  <section class="how" id="how">
+    <div class="how-inner">
+      <p class="section-eyebrow reveal">// how it works</p>
+      <h2 class="reveal">
+        Open your day.<br><em>It&rsquo;s already here.</em>
+      </h2>
+      <div class="how-steps reveal">
+        <div class="how-step">
+          <div class="how-step-num">01</div>
+          <div class="how-step-icon">&#9728;</div>
+          <div class="how-step-title">Connect once</div>
+          <div class="how-step-body">Link your calendar, task list, and email. Sageful learns the shape of your days. Takes five minutes.</div>
+        </div>
+        <div class="how-step">
+          <div class="how-step-num">02</div>
+          <div class="how-step-icon">&#10024;</div>
+          <div class="how-step-title">AI assembles overnight</div>
+          <div class="how-step-body">While you sleep, Sageful surfaces what matters tomorrow &mdash; priorities ranked, conflicts flagged, briefing written.</div>
+        </div>
+        <div class="how-step">
+          <div class="how-step-num">03</div>
+          <div class="how-step-icon">&#9654;</div>
+          <div class="how-step-title">Arrive and start</div>
+          <div class="how-step-body">Open Sageful. Your command center is ready. No decisions about what to work on first. Just begin.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMPARISON -->
+  <section class="comparison" id="compare">
+    <div class="comparison-inner">
+      <p class="section-eyebrow reveal">// the difference</p>
+      <h2 class="reveal">
+        Notion requires you to build.<br>
+        <em>Sageful is the system.</em>
+      </h2>
+      <p class="comparison-sub reveal">You built a beautiful Notion setup. You used it for two weeks. You abandoned it. Sageful is the system you wanted Notion to be &mdash; without the maintenance tax.</p>
+      <div class="compare-grid reveal">
+        <div class="compare-card">
+          <div class="compare-card-label">Notion</div>
+          <div class="compare-row">
+            <div class="compare-row-label">Getting started</div>
+            <div class="compare-row-value">Build everything from scratch</div>
+          </div>
+          <div class="compare-row">
+            <div class="compare-row-label">Daily use</div>
+            <div class="compare-row-value">You maintain it manually, every day</div>
+          </div>
+          <div class="compare-row">
+            <div class="compare-row-label">AI role</div>
+            <div class="compare-row-value">A sidebar you ask questions</div>
+          </div>
+          <div class="compare-row">
+            <div class="compare-row-label">Feels like</div>
+            <div class="compare-row-value">A construction kit</div>
+          </div>
+          <div class="compare-row">
+            <div class="compare-row-label">Best for</div>
+            <div class="compare-row-value">People who love building systems</div>
+          </div>
+        </div>
+        <div class="compare-card sageful">
+          <div class="compare-card-label">Sageful</div>
+          <div class="compare-row">
+            <div class="compare-row-label">Getting started</div>
+            <div class="compare-row-value">Zero setup &mdash; AI builds it for you</div>
+          </div>
+          <div class="compare-row">
+            <div class="compare-row-label">Daily use</div>
+            <div class="compare-row-value">It&rsquo;s ready when you arrive</div>
+          </div>
+          <div class="compare-row">
+            <div class="compare-row-label">AI role</div>
+            <div class="compare-row-value">The engine that assembles your day</div>
+          </div>
+          <div class="compare-row">
+            <div class="compare-row-label">Feels like</div>
+            <div class="compare-row-value">A command center</div>
+          </div>
+          <div class="compare-row">
+            <div class="compare-row-label">Best for</div>
+            <div class="compare-row-value">Everyone else</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BOTTOM CTA -->
+  <section class="cta-section" id="waitlist-bottom">
+    <div class="cta-inner">
+      <h2>Live with intention.<br><em>Not with tabs.</em></h2>
+      <p>Join the waitlist for early access to Sageful.</p>
+      <iframe data-tally-src="https://tally.so/embed/MeYODA?alignLeft=1&hideTitle=1&transparentBackground=1&dynamicHeight=1" loading="lazy" width="100%" height="150" frameborder="0" marginheight="0" marginwidth="0" title="Sageful Waitlist"></iframe>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <span class="footer-wordmark">sageful</span>
+      <span class="footer-tagline">intelligently assembled</span>
+      <span class="footer-right">Â© 2026 &middot; Early Access</span>
+    </div>
+  </footer>
+
+  <script>
+    // Nav scroll state
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 20);
+    }, { passive: true });
+
+    // Scroll reveal
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          e.target.classList.add('visible');
+          // Stagger children if it's a grid
+          const children = e.target.querySelectorAll('.how-step, .compare-card');
+          children.forEach((child, i) => {
+            child.style.transitionDelay = `${i * 0.1}s`;
+          });
+        }
+      });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Tally embed loader
+    var d=document,w="https://tally.so/widgets/embed.js",v=function(){"undefined"!=typeof Tally?Tally.loadEmbeds():d.querySelectorAll("iframe[data-tally-src]:not([src])").forEach((function(e){e.src=e.dataset.tallySrc}))};if("undefined"!=typeof Tally)v();else if(d.querySelector('script[src="'+w+'"]')==null){var s=d.createElement("script");s.src=w;s.onload=v;s.onerror=v;d.body.appendChild(s);}
+  </script>
+
+</body>
+</html>
