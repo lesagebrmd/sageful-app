@@ -3,10 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sageful · Intelligently Assembled</title>
+  <title>Sageful — Sageful OS</title>
   <meta name="description" content="Sageful OS — the system that assembles your calendar, tasks, and priorities with AI before you even sit down.">
-  <link rel="icon" href="C:\Users\Brian's Laptop\Documents\Claude\Brian OS\BrianAI-OS\sageful-landing\favicon.svg" type="image/png">
-  <link rel="icon" href="C:\Users\Brian's Laptop\Documents\Claude\Brian OS\BrianAI-OS\sageful-landing\favicon.svg" type="image/svg+xml">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -92,6 +94,22 @@
       color: var(--sage-deep);
       letter-spacing: 0.03em;
       text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-leaf {
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      animation: leafPulse 2.8s ease-in-out infinite;
+      border-radius: 50%;
+    }
+
+    @keyframes leafPulse {
+      0%, 100% { filter: drop-shadow(0 0 2px rgba(90,148,112,0.4)); transform: scale(1); }
+      50%      { filter: drop-shadow(0 0 14px rgba(90,200,130,0.7)) drop-shadow(0 0 4px rgba(124,200,150,0.5)); transform: scale(1.12); }
     }
 
     .nav-right {
@@ -882,7 +900,7 @@
 
   <!-- NAV -->
   <nav id="nav">
-    <a href="#" class="nav-wordmark">sageful</a>
+    <a href="#" class="nav-wordmark"><img src="favicon.svg" alt="" class="nav-leaf" width="22" height="22">sageful</a>
     <div class="nav-right">
       <a href="#how" class="nav-link">How it works</a>
       <a href="#compare" class="nav-link">vs. Notion</a>
@@ -919,7 +937,7 @@
           <div class="dash-topbar">
             <div class="dash-brand">
               <span class="dash-brand-mark"></span>
-              <span class="dash-brand-name">Sageful</span>
+              <span class="dash-brand-name">BrianAI-OS</span>
             </div>
             <div class="dash-header-right">
               <span class="dash-clock">Wed 2 Apr &nbsp;·&nbsp; 8:47 am</span>
